@@ -1,9 +1,7 @@
 
-template < int iBUFFER_SIZE>
+template < size_t iBUFFER_SIZE >
 class SoilMoistureSensor
-{
-  
-     
+{   
   private:
     int m_aiSensorRawData[iBUFFER_SIZE];
     int m_iSensorPin;
@@ -38,7 +36,7 @@ class SoilMoistureSensor
       m_iSensorPin = iPin;
     }
     
-    boolean DoesSensorHaveData()
+    boolean DoesSensorHaveValue()
     {
       return m_bSensorHasValue;
     }
@@ -48,7 +46,7 @@ class SoilMoistureSensor
       m_aiSensorRawData[m_iCurrentSamplingIndex] = analogRead(m_iSensorPin);
       m_iCurrentSamplingIndex++;
       
-      if (m_iSensorPin == iBUFFER_SIZE)
+      if (m_iCurrentSamplingIndex == iBUFFER_SIZE)
       {
         m_fSensorValue = 0;
         for (int i = 0; i < iBUFFER_SIZE; i++)
@@ -67,6 +65,11 @@ class SoilMoistureSensor
      return m_fSensorValue;
    }
    
+   int GetIntValue()
+   {
+     return m_fSensorValue; 
+   }
+   
    void ClearStoredValue()
    {
      m_bSensorHasValue = false;
@@ -74,12 +77,15 @@ class SoilMoistureSensor
    }
 };
 
-const int iSENSOR_COUNT = 2;
+const int iSENSOR_COUNT = 1;
 SoilMoistureSensor<10> axSMSensors[iSENSOR_COUNT];
  
 void setup() 
 {
-  
+   for (int i=0 ; i<iSENSOR_COUNT; i++)
+  {
+    axSMSensors[i].SetPin(i);
+  }
   // declare the ledPin as an OUTPUT:
    Serial.begin(9600);  
 }
@@ -89,17 +95,18 @@ void loop() {
   
   for (int i=0 ; i<iSENSOR_COUNT; i++)
   {
-    axSMSensors[i].Update(); 
-    delay(1000);
+    axSMSensors[i].Sample();
   
     if (axSMSensors[i].DoesSensorHaveValue())
     {
       Serial.print("sensor");
       Serial.print(i);
       Serial.print(" = ");                       
-      Serial.println(axSMSensors[i].GetValue());
+      Serial.println(axSMSensors[i].GetIntValue());
       
       axSMSensors[i].ClearStoredValue();
     }  
   }   
+  
+    delay(200);
 }
