@@ -68,10 +68,16 @@ class SoilMoistureSensor
    {
      return m_fSensorValue; 
    }
+
+   float GetNormalisedValue(float fScale = 1024.0f)
+   {
+     return m_fSensorValue/fScale;
+   }
    
    void ClearStoredValue()
    {
      m_bSensorHasValue = false;
      m_fSensorValue = 0.0f;
+     m_iCurrentSamplingIndex = 0;
    }
 };
